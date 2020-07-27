@@ -9,9 +9,10 @@ const addItem = text => {
 
 describe('reset data using XHR call', () => {
   beforeEach(() => {
-    // application should be running at port 3000
-    // and the "localhost:3000" is set as "baseUrl" in "cypress.json"
     // TODO call /reset endpoint with POST method and object {todos: []}
+    cy.request('POST', '/reset', {
+      todos: []
+    })
     cy.visit('/')
   })
 
@@ -25,8 +26,15 @@ describe('reset data using XHR call', () => {
 describe('reset data using cy.writeFile', () => {
   beforeEach(() => {
     // TODO write file "todomvc/data.json" with stringified todos object
-    // file path is relative to the project's root folder
-    // where cypress.json is located
+    const resetFile =
+      JSON.stringify(
+        {
+          todos: []
+        },
+        null,
+        2
+      ) + '\n'
+    cy.writeFile('todomvc/data.json', resetFile, 'utf-8')
     cy.visit('/')
   })
 
@@ -39,7 +47,9 @@ describe('reset data using cy.writeFile', () => {
 
 describe('reset data using a task', () => {
   beforeEach(() => {
-    // TODO call a task to reset data
+    //though I added a default argument to the parameter but Cypress won't make it default.
+    //It's a bug
+    cy.task('resetData')
     cy.visit('/')
   })
 
@@ -53,6 +63,22 @@ describe('reset data using a task', () => {
 describe('set initial data', () => {
   it('sets data to complex object right away', () => {
     // TODO call task and pass an object with todos
+    const defaultData = {
+      todos: [
+        {
+          title: 'Skip school',
+          completed: false,
+          id: 7
+        },
+        {
+          title: 'Write some test',
+          completed: true,
+          id: 9
+        }
+      ]
+    }
+
+    cy.task('resetData', defaultData)
     cy.visit('/')
     // check what is rendered
   })
@@ -60,6 +86,10 @@ describe('set initial data', () => {
   it('sets data using fixture', () => {
     // TODO load todos from "cypress/fixtures/two-items.json"
     // and then call the task to set todos
+    cy.fixture('two-items').then(todo => {
+      cy.task('resetData', { todo })
+    })
+
     cy.visit('/')
     // check what is rendered
   })

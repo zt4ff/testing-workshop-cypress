@@ -58,12 +58,6 @@ it('loads', () => {
 // IMPORTANT ⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️
 
 it('adds two items', () => {
-  // repeat twice ---> how do I repeat twice
-  //    get the input field
-  //    type text and "enter"
-  //    assert that the new Todo item
-  //    has been added added to the list
-  // cy.get(...).should('have.length', 2)
   ;['read books', 'play football'].forEach(tasks => {
     cy.get('.new-todo')
       .click()
@@ -108,11 +102,12 @@ it('can delete an item', () => {
   cy.get('.todo-list > li').should('exist')
 })
 
-it.skip('can add many items', () => {
+it.only('can add many items', () => {
   const N = 5
   for (let k = 0; k < N; k += 1) {
-    // add an item
-    // probably want to have a reusable function to add an item!
+    cy.get('.new-todo')
+      .click()
+      .type(genRandomList() + '{enter}')
   }
   // check number of items
 })
@@ -130,8 +125,9 @@ it('adds item with random text', () => {
     .and('not.have.class', 'completed')
 })
 
-it.skip('starts with zero items', () => {
+it('starts with zero items', () => {
   // check if the list is empty initially
+  cy.get('li.todo').should('have.length', 0)
   //   find the selector for the individual TODO items
   //   in the list
   //   use cy.get(...) and it should have length of 0

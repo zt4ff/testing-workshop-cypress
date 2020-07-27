@@ -1,6 +1,7 @@
 /// <reference types="cypress" />
 // application should be running at port 3000
 // and the "localhost:3000" is set as "baseUrl" in "cypress.json"
+
 beforeEach(() => {
   cy.request('POST', '/reset', {
     todos: []
@@ -8,6 +9,20 @@ beforeEach(() => {
 })
 beforeEach(() => {
   cy.visit('/')
+})
+
+let called = false
+
+beforeEach(function stubRandomIdGenerator() {
+  let count = 1
+  cy.window()
+    .its('Math')
+    .then(Math => {
+      cy.stub(Math, 'random', () => {
+        called = true
+        return `0${count++}`
+      }).as('random')
+    })
 })
 /**
  * Adds a todo item
@@ -18,11 +33,15 @@ const addItem = text => {
 }
 
 it('adds items to store', () => {
+  cy.task('resetData')
   addItem('something')
   addItem('something else')
   // get application's window
-  // then get app, $store, state, todos
-  // it should have 2 items
+  cy.window()
+    .its('app.$store.state.todos')
+    // then get app, $store, state, todos
+    // it should have 2 items
+    .should('have.length', 2)
 })
 
 it('creates an item with id 1', () => {
@@ -31,19 +50,14 @@ it('creates an item with id 1', () => {
 
   // TODO change Math.random to be deterministic
 
-  // STEPS
-  // get the application's "window" object using cy.window
-  // then change its Math object and replace it
-  // with your function that always returns "0.1"
-
   addItem('something')
   // confirm the item sent to the server has the right values
   cy.wait('@new-item')
     .its('request.body')
     .should('deep.equal', {
-      id: '1',
       title: 'something',
-      completed: false
+      completed: false,
+      id: ''
     })
 })
 
@@ -51,23 +65,9 @@ it('creates an item with id 1', () => {
 it('creates an item with id using a stub', () => {
   // get the application's "window.Math" object using cy.window
   // replace Math.random with cy.stub and store the stub under an alias
-  // create a todo using addItem("foo")
+  // create a todo using addItem("foo");
+  addItem('foo')
+  assert(called)
   // and then confirm that the stub was called once
 })
 
-it('puts the todo items into the data store', () => {
-  // application uses data store to store its items
-  // you can get the data store using "window.app.$store.state.todos"
-  // add a couple of items
-  // get the data store
-  // check its contents
-})
-
-it('handles todos with blank title', () => {
-  // bypass the UI and call app's actions directly from the test
-  // app.$store.dispatch('setNewTodo', <desired text>)
-  // app.$store.dispatch('addTodo')
-  // using https://on.cypress.io/invoke
-  // and then
-  // confirm the application is not breaking
-})

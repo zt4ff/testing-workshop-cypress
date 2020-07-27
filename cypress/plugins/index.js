@@ -13,13 +13,16 @@
 
 /* eslint-disable no-console */
 
+//requirement to run a Node code
 const fs = require('fs')
 const path = require('path')
 const debug = require('debug')('testing-workshop-cypress')
 
+//using the path node package to get the file(data.json) path
 const getDbFilename = () =>
   path.join(__dirname, '..', '..', 'todomvc', 'data.json')
 
+//function to check if a list exist in a the database
 const findRecord = title => {
   const dbFilename = getDbFilename()
   const contents = JSON.parse(fs.readFileSync(dbFilename))
@@ -27,6 +30,7 @@ const findRecord = title => {
   return todos.find(record => record.title === title)
 }
 
+//aync to check retry checking if a list exist in the file
 const hasRecordAsync = (title, ms) => {
   const delay = 50
   return new Promise((resolve, reject) => {
@@ -62,6 +66,7 @@ module.exports = (on, config) => {
       // which prevents setting the default value. This is a bug in
       // https://github.com/cypress-io/cypress/issues/5913
       if (!dataToSet) {
+        //dataToSet to { todos: [] }
         dataToSet = DEFAULT_DATA
       }
       const dbFilename = getDbFilename()
